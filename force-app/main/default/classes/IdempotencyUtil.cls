@@ -1,0 +1,44 @@
+/**
+ * @description Utility class for generating idempotent hash keys
+ * @author Master's Student - SDLC Demonstration
+ * @date 2025
+ */
+public with sharing class IdempotencyUtil {
+    
+    /**
+     * @description Generates a unique hash key for a file record
+     * @param sourceType The source type of the file
+     * @param sourceId The source ID of the file
+     * @return String A unique hash key
+     */
+    public static String makeHashKey(String sourceType, Id sourceId) {
+        if (String.isBlank(sourceType) || sourceId == null) {
+            throw new IllegalArgumentException('Source type and ID cannot be null');
+        }
+        
+        // Generate hash key: concat(SourceType + SourceId)
+        String keyInput = sourceType + String.valueOf(sourceId);
+        
+        // Use Blob.valueOf and hash for more robust key generation
+        Blob keyBlob = Blob.valueOf(keyInput);
+        Blob hashBlob = Crypto.generateDigest('SHA-256', keyBlob);
+        String hashKey = EncodingUtil.convertToHex(hashBlob);
+        
+        // Return first 64 characters to fit field length
+        return hashKey.substring(0, Math.min(64, hashKey.length()));
+    }
+    
+    /**
+     * @description Alternative simpler hash key for backwards compatibility
+     * @param sourceType The source type
+     * @param sourceId The source ID
+     * @return String Simple concatenated key
+     */
+    public static String makeSimpleHashKey(String sourceType, Id sourceId) {
+        if (String.isBlank(sourceType) || sourceId == null) {
+            throw new IllegalArgumentException('Source type and ID cannot be null');
+        }
+        
+        return sourceType + '_' + String.valueOf(sourceId);
+    }
+}
