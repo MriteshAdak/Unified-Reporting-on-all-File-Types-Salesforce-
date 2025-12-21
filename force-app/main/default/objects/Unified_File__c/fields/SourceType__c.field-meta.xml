@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SourceType__c</fullName>
+    <label>Source Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>CONTENT_DOCUMENT</fullName>
+                <default>false</default>
+                <label>CONTENT_DOCUMENT</label>
+            </value>
+            <value>
+                <fullName>ATTACHMENT</fullName>
+                <default>false</default>
+                <label>ATTACHMENT</label>
+            </value>
+            <value>
+                <fullName>CONTENT_NOTE</fullName>
+                <default>false</default>
+                <label>CONTENT_NOTE</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

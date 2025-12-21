@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ownershipPolicy__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Ownership Policy</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>LATEST_VERSION_MODIFIER</fullName>
+                <default>true</default>
+                <label>LATEST_VERSION_MODIFIER</label>
+            </value>
+            <value>
+                <fullName>PARENT_OWNER</fullName>
+                <default>false</default>
+                <label>PARENT_OWNER</label>
+            </value>
+            <value>
+                <fullName>ATTACHMENT_OWNER</fullName>
+                <default>false</default>
+                <label>ATTACHMENT_OWNER</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
