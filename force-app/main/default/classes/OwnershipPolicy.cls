@@ -1,6 +1,6 @@
 /**
  * @description Enumeration for ownership resolution policies
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public enum OwnershipPolicy {

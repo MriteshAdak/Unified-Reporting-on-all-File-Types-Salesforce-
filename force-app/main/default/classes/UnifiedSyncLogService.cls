@@ -1,6 +1,6 @@
 /**
  * @description Service for logging synchronization operations
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class UnifiedSyncLogService {
@@ -77,7 +77,6 @@ public with sharing class UnifiedSyncLogService {
         logRecord.ErrorCount__c = errorCount;
         logRecord.SampleError__c = truncateError(sampleError);
         
-        // Determine status
         if (errorCount == 0) {
             logRecord.Status__c = 'SUCCESS';
         } else if (errorCount < recordCount) {
@@ -103,7 +102,7 @@ public with sharing class UnifiedSyncLogService {
             return null;
         }
         
-        Integer maxLength = 32768; // Long Text Area field limit
+        Integer maxLength = 32768;
         return error.length() > maxLength ? error.substring(0, maxLength) : error;
     }
     

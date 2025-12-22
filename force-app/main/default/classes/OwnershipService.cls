@@ -1,6 +1,6 @@
 /**
  * @description Service to derive OwnerId based on configurable policy
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class OwnershipService {
@@ -20,12 +20,11 @@ public with sharing class OwnershipService {
             return deriveFromAttachmentOwner(fileDto);
         }
         
-        // Default fallback
         return deriveFromLatestModifier(fileDto);
     }
     
     /**
-     * @description Derives owner from latest modifier (DEFAULT for Content/Notes)
+     * @description Derives owner from latest modifier
      * @param fileDto The file DTO
      * @return Id Owner ID
      */
@@ -47,7 +46,6 @@ public with sharing class OwnershipService {
         }
         
         try {
-            // Query parent record for OwnerId
             String parentType = fileDto.parentRecordType;
             if (String.isBlank(parentType)) {
                 parentType = fileDto.parentRecordId.getSObjectType().getDescribe().getName();
@@ -65,7 +63,7 @@ public with sharing class OwnershipService {
     }
     
     /**
-     * @description Derives owner from Attachment's OwnerId field (for Attachments only)
+     * @description Derives owner from Attachment's OwnerId field
      * @param fileDto The file DTO
      * @return Id Owner ID
      */
@@ -79,7 +77,6 @@ public with sharing class OwnershipService {
             }
         }
         
-        // Fallback for non-Attachments or errors
         return deriveFromLatestModifier(fileDto);
     }
     

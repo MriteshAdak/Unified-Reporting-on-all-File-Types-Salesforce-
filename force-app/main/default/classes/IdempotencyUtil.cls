@@ -1,6 +1,6 @@
 /**
  * @description Utility class for generating idempotent hash keys
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class IdempotencyUtil {
@@ -16,15 +16,11 @@ public with sharing class IdempotencyUtil {
             throw new IllegalArgumentException('Source type and ID cannot be null');
         }
         
-        // Generate hash key: concat(SourceType + SourceId)
         String keyInput = sourceType + String.valueOf(sourceId);
-        
-        // Use Blob.valueOf and hash for more robust key generation
         Blob keyBlob = Blob.valueOf(keyInput);
         Blob hashBlob = Crypto.generateDigest('SHA-256', keyBlob);
         String hashKey = EncodingUtil.convertToHex(hashBlob);
         
-        // Return first 64 characters to fit field length
         return hashKey.substring(0, Math.min(64, hashKey.length()));
     }
     

@@ -1,6 +1,6 @@
 /**
  * @description Enumeration for file source types
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public enum SourceType {

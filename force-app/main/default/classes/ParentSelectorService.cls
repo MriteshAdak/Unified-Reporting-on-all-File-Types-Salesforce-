@@ -1,7 +1,7 @@
 /**
  * @description Service to select primary parent from ContentDocumentLinks
- * Rule: Filter out User parents, choose most recent non-User link
- * @author Master's Student - SDLC Demonstration
+ * Rule: Filter out User parents, choose first non-User link
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class ParentSelectorService {
@@ -38,10 +38,7 @@ public with sharing class ParentSelectorService {
             return new ParentInfo(null, null, null);
         }
         
-        // Step 3: Sort by most recent (LastModifiedDate or CreatedDate)
-        candidateLinks.sort(new LinkDateComparator());
-        
-        // Step 4: Select the most recent link
+        // Step 3: Select the first link (deterministic approach)
         ContentDocumentLink selectedLink = candidateLinks[0];
         
         return extractParentInfo(selectedLink);
@@ -63,34 +60,14 @@ public with sharing class ParentSelectorService {
         
         // Attempt to get parent name if available
         try {
-            // Query for Name field if it exists on the parent object
             String query = 'SELECT Name FROM ' + parentType + ' WHERE Id = :parentId LIMIT 1';
             SObject parentRecord = Database.query(query);
             parentName = (String)parentRecord.get('Name');
         } catch (Exception e) {
-            // Name field might not exist; leave as null
             System.debug(LoggingLevel.WARN, 'Could not retrieve name for ' + parentType + ': ' + e.getMessage());
         }
         
         return new ParentInfo(parentId, parentType, parentName);
-    }
-    
-    /**
-     * @description Comparator class for sorting ContentDocumentLinks by date
-     * Note: ContentDocumentLink only has CreatedDate, not LastModifiedDate
-     */
-    private class LinkDateComparator implements System.Comparator<ContentDocumentLink> {
-        public Integer compare(ContentDocumentLink link1, ContentDocumentLink link2) {
-            Datetime date1 = link1.CreatedDate;
-            Datetime date2 = link2.CreatedDate;
-            
-            if (date1 == null && date2 == null) return 0;
-            if (date1 == null) return 1;
-            if (date2 == null) return -1;
-            
-            // Sort descending (most recent first)
-            return date2 > date1 ? 1 : (date2 < date1 ? -1 : 0);
-        }
     }
     
     /**
@@ -107,7 +84,7 @@ public with sharing class ParentSelectorService {
         
         // Query all links for these documents
         List<ContentDocumentLink> allLinks = [
-            SELECT ContentDocumentId, LinkedEntityId, CreatedDate
+            SELECT ContentDocumentId, LinkedEntityId
             FROM ContentDocumentLink
             WHERE ContentDocumentId IN :contentDocumentIds
             WITH SECURITY_ENFORCED

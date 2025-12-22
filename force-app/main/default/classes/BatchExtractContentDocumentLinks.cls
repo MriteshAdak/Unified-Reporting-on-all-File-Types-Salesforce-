@@ -1,6 +1,6 @@
 /**
  * @description Batch job to update parent information from ContentDocumentLinks
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class BatchExtractContentDocumentLinks implements Database.Batchable<SObject>, Database.Stateful {
@@ -12,50 +12,49 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
     private String sampleError;
     private Unified_Sync_Log__c logRecord;
     
-    /**
-     * @description Constructor
-     * @param mode Sync mode (FULL or DELTA)
-     * @param lookbackMinutes Lookback period for DELTA mode
-     */
     public BatchExtractContentDocumentLinks(SyncMode mode, Integer lookbackMinutes) {
         this.mode = mode;
         this.lookbackMinutes = lookbackMinutes;
     }
     
-    /**
-     * @description Start method - builds query
-     * Note: ContentDocumentLink only has CreatedDate and SystemModstamp, not LastModifiedDate
-     * @param bc Batch context
-     * @return Database.QueryLocator Query locator for ContentDocumentLinks
-     */
     public Database.QueryLocator start(Database.BatchableContext bc) {
         this.logRecord = UnifiedSyncLogService.startLog(
             'BatchExtractContentDocumentLinks',
             mode.name()
         );
         
-        String query = 'SELECT ContentDocumentId, LinkedEntityId, ' +
-                      'CreatedDate, SystemModstamp ' +
-                      'FROM ContentDocumentLink';
+        Set<Id> contentDocumentIds = new Set<Id>();
         
         if (mode == SyncMode.DELTA && lookbackMinutes != null) {
             Datetime lookbackTime = Datetime.now().addMinutes(-lookbackMinutes);
-            // Use SystemModstamp for delta since LastModifiedDate doesn't exist
-            query += ' WHERE SystemModstamp >= :lookbackTime';
+            for (ContentVersion cv : [
+                SELECT ContentDocumentId 
+                FROM ContentVersion 
+                WHERE LastModifiedDate >= :lookbackTime AND IsLatest = true
+            ]) {
+                contentDocumentIds.add(cv.ContentDocumentId);
+            }
+        } else {
+            for (ContentVersion cv : [
+                SELECT ContentDocumentId 
+                FROM ContentVersion 
+                WHERE IsLatest = true
+            ]) {
+                contentDocumentIds.add(cv.ContentDocumentId);
+            }
         }
+        
+        // Query ContentDocumentLinks with required filter
+        String query = 'SELECT ContentDocumentId, LinkedEntityId ' +
+                      'FROM ContentDocumentLink ' +
+                      'WHERE ContentDocumentId IN :contentDocumentIds';
         
         System.debug('BatchExtractContentDocumentLinks query: ' + query);
         return Database.getQueryLocator(query);
     }
     
-    /**
-     * @description Execute method - processes batches
-     * @param bc Batch context
-     * @param links List of ContentDocumentLinks to process
-     */
     public void execute(Database.BatchableContext bc, List<ContentDocumentLink> links) {
         try {
-            // Group links by ContentDocumentId
             Map<Id, List<ContentDocumentLink>> documentToLinksMap = 
                 new Map<Id, List<ContentDocumentLink>>();
             
@@ -66,7 +65,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                 documentToLinksMap.get(link.ContentDocumentId).add(link);
             }
             
-            // Select primary parents
             Map<Id, ParentInfo> parentMap = new Map<Id, ParentInfo>();
             for (Id documentId : documentToLinksMap.keySet()) {
                 ParentInfo parent = ParentSelectorService.selectPrimaryParent(
@@ -75,7 +73,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                 parentMap.put(documentId, parent);
             }
             
-            // Query existing Unified_File__c records for these documents
             Set<String> hashKeys = new Set<String>();
             for (Id documentId : parentMap.keySet()) {
                 String hashKey = IdempotencyUtil.makeHashKey('CONTENT_DOCUMENT', documentId);
@@ -94,7 +91,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                 existingRecordsMap.put(record.HashKey__c, record);
             }
             
-            // Update parent information
             List<Unified_File__c> recordsToUpdate = new List<Unified_File__c>();
             
             for (Id documentId : parentMap.keySet()) {
@@ -104,7 +100,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                 if (existingRecord != null) {
                     ParentInfo newParent = parentMap.get(documentId);
                     
-                    // Check if parent has changed
                     Boolean parentChanged = false;
                     if (newParent.isValid()) {
                         parentChanged = (existingRecord.ParentRecordId__c != String.valueOf(newParent.parentRecordId));
@@ -119,7 +114,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                 }
             }
             
-            // Perform update
             if (!recordsToUpdate.isEmpty()) {
                 List<Database.SaveResult> results = Database.update(
                     recordsToUpdate,
@@ -127,19 +121,22 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
                     AccessLevel.USER_MODE
                 );
                 
-                Map<String, Integer> summary = UnifiedFileUpsertService.analyzeSaveResults(results);
-                totalProcessed += summary.get('success');
-                totalErrors += summary.get('errors');
+                Integer successCount = 0;
+                Integer errorCount = 0;
                 
-                // Capture first error
-                if (sampleError == null) {
-                    for (Database.SaveResult result : results) {
-                        if (!result.isSuccess()) {
+                for (Database.SaveResult result : results) {
+                    if (result.isSuccess()) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                        if (sampleError == null && !result.getErrors().isEmpty()) {
                             sampleError = result.getErrors()[0].getMessage();
-                            break;
                         }
                     }
                 }
+                
+                totalProcessed += successCount;
+                totalErrors += errorCount;
             }
             
         } catch (Exception e) {
@@ -151,10 +148,6 @@ public with sharing class BatchExtractContentDocumentLinks implements Database.B
         }
     }
     
-    /**
-     * @description Finish method - logs results
-     * @param bc Batch context
-     */
     public void finish(Database.BatchableContext bc) {
         UnifiedSyncLogService.completeLog(
             logRecord,

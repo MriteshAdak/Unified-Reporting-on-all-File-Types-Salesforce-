@@ -1,6 +1,6 @@
 /**
- * @description Service class to map source records (ContentVersion, Attachment, ContentNote) to FileDTO
- * @author Master's Student - SDLC Demonstration
+ * @description Service class to map source records to FileDTO
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class FileRecordMapper {
@@ -26,7 +26,6 @@ public with sharing class FileRecordMapper {
         dto.isArchived = cv.IsLatest == false;
         dto.isDeleted = cv.IsDeleted;
         
-        // Check if it's a ContentNote (FileType = 'SNOTE')
         dto.isContentNote = (cv.FileType == 'SNOTE');
         if (dto.isContentNote) {
             dto.sourceType = SourceType.CONTENT_NOTE;
@@ -45,10 +44,9 @@ public with sharing class FileRecordMapper {
         
         dto.sourceType = SourceType.ATTACHMENT;
         dto.sourceId = att.Id;
-        dto.latestVersionId = att.Id; // Attachments don't have versions
+        dto.latestVersionId = att.Id;
         dto.title = att.Name;
         
-        // Extract extension from filename
         if (String.isNotBlank(att.Name) && att.Name.contains('.')) {
             dto.extension = att.Name.substringAfterLast('.');
         }
@@ -61,7 +59,6 @@ public with sharing class FileRecordMapper {
         dto.parentRecordId = att.ParentId;
         dto.isDeleted = att.IsDeleted;
         
-        // Set parent info for attachments (direct relationship)
         if (att.ParentId != null) {
             dto.parentRecordType = att.ParentId.getSObjectType().getDescribe().getName();
         }
@@ -70,8 +67,8 @@ public with sharing class FileRecordMapper {
     }
     
     /**
-     * @description Maps ContentNote with ContentVersion to FileDTO
-     * @param cv ContentVersion record (with FileType = 'SNOTE')
+     * @description Maps ContentNote to FileDTO
+     * @param cv ContentVersion record with FileType = 'SNOTE'
      * @return FileDTO Mapped file data
      */
     public static FileDTO fromContentNote(ContentVersion cv) {

@@ -1,6 +1,6 @@
 /**
  * @description Batch job to extract and process Attachments
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class BatchExtractAttachments implements Database.Batchable<SObject>, Database.Stateful {
@@ -12,21 +12,11 @@ public with sharing class BatchExtractAttachments implements Database.Batchable<
     private String sampleError;
     private Unified_Sync_Log__c logRecord;
     
-    /**
-     * @description Constructor
-     * @param mode Sync mode (FULL or DELTA)
-     * @param lookbackMinutes Lookback period for DELTA mode
-     */
     public BatchExtractAttachments(SyncMode mode, Integer lookbackMinutes) {
         this.mode = mode;
         this.lookbackMinutes = lookbackMinutes;
     }
     
-    /**
-     * @description Start method - builds query
-     * @param bc Batch context
-     * @return Database.QueryLocator Query locator for Attachments
-     */
     public Database.QueryLocator start(Database.BatchableContext bc) {
         this.logRecord = UnifiedSyncLogService.startLog(
             'BatchExtractAttachments',
@@ -47,17 +37,10 @@ public with sharing class BatchExtractAttachments implements Database.Batchable<
         return Database.getQueryLocator(query);
     }
     
-    /**
-     * @description Execute method - processes batches
-     * @param bc Batch context
-     * @param attachments List of Attachments to process
-     */
     public void execute(Database.BatchableContext bc, List<Attachment> attachments) {
         try {
-            // Step 1: Map Attachments to DTOs
             List<FileDTO> fileDtos = FileRecordMapper.fromAttachments(attachments);
             
-            // Step 2: Enrich parent names (ParentId already set in mapper)
             Set<Id> parentIds = new Set<Id>();
             Map<String, Set<Id>> parentTypeToIds = new Map<String, Set<Id>>();
             
@@ -71,7 +54,6 @@ public with sharing class BatchExtractAttachments implements Database.Batchable<
                 }
             }
             
-            // Query parent names by type
             Map<Id, String> parentNamesMap = new Map<Id, String>();
             for (String parentType : parentTypeToIds.keySet()) {
                 try {
@@ -87,24 +69,20 @@ public with sharing class BatchExtractAttachments implements Database.Batchable<
                 }
             }
             
-            // Apply parent names to DTOs
             for (FileDTO dto : fileDtos) {
                 if (dto.parentRecordId != null && parentNamesMap.containsKey(dto.parentRecordId)) {
                     dto.parentRecordName = parentNamesMap.get(dto.parentRecordId);
                 }
             }
             
-            // Step 3: Upsert to Unified_File__c
-            List<Database.SaveResult> results = UnifiedFileUpsertService.upsertUnifiedFiles(fileDtos);
+            List<Database.UpsertResult> results = UnifiedFileUpsertService.upsertUnifiedFiles(fileDtos);
             
-            // Step 4: Track results
             Map<String, Integer> summary = UnifiedFileUpsertService.analyzeSaveResults(results);
             totalProcessed += summary.get('success');
             totalErrors += summary.get('errors');
             
-            // Capture first error
             if (sampleError == null) {
-                for (Database.SaveResult result : results) {
+                for (Database.UpsertResult result : results) {
                     if (!result.isSuccess()) {
                         sampleError = result.getErrors()[0].getMessage();
                         break;
@@ -121,10 +99,6 @@ public with sharing class BatchExtractAttachments implements Database.Batchable<
         }
     }
     
-    /**
-     * @description Finish method - logs results
-     * @param bc Batch context
-     */
     public void finish(Database.BatchableContext bc) {
         UnifiedSyncLogService.completeLog(
             logRecord,

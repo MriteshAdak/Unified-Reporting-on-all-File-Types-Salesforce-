@@ -1,6 +1,6 @@
 /**
  * @description Data Transfer Object for file information across the sync pipeline
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public class FileDTO {

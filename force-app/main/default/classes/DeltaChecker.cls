@@ -1,6 +1,6 @@
 /**
  * @description Service class to detect changes between FileDTO and existing Unified_File__c records
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class DeltaChecker {
@@ -13,10 +13,9 @@ public with sharing class DeltaChecker {
      */
     public static Boolean hasChanged(FileDTO fileDto, Unified_File__c existingRecord) {
         if (existingRecord == null) {
-            return true; // New record
+            return true;
         }
         
-        // Compare key fields that would indicate a change
         if (isDifferent(fileDto.title, existingRecord.FileTitle__c)) return true;
         if (isDifferent(fileDto.extension, existingRecord.FileExtension__c)) return true;
         if (isDifferent(fileDto.sizeKb, existingRecord.FileSizeKB__c)) return true;
@@ -28,7 +27,7 @@ public with sharing class DeltaChecker {
         if (isDifferent(fileDto.isArchived, existingRecord.IsArchived__c)) return true;
         if (isDifferent(fileDto.isDeleted, existingRecord.IsDeleted__c)) return true;
         
-        return false; // No changes detected
+        return false;
     }
     
     /**

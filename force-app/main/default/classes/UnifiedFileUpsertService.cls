@@ -1,6 +1,6 @@
 /**
  * @description Service for upserting Unified_File__c records with idempotency
- * @author Master's Student - SDLC Demonstration
+ * @author Mritesh Adak
  * @date 2025
  */
 public with sharing class UnifiedFileUpsertService {
@@ -8,20 +8,18 @@ public with sharing class UnifiedFileUpsertService {
     /**
      * @description Upserts file DTOs to Unified_File__c with delta checking
      * @param fileDtos List of file DTOs to upsert
-     * @return List<Database.SaveResult> Results of the upsert operation
+     * @return List<Database.UpsertResult> Results of the upsert operation
      */
-    public static List<Database.SaveResult> upsertUnifiedFiles(List<FileDTO> fileDtos) {
+    public static List<Database.UpsertResult> upsertUnifiedFiles(List<FileDTO> fileDtos) {
         if (fileDtos == null || fileDtos.isEmpty()) {
-            return new List<Database.SaveResult>();
+            return new List<Database.UpsertResult>();
         }
         
-        // Step 1: Build hash keys
         Set<String> hashKeys = new Set<String>();
         for (FileDTO dto : fileDtos) {
             hashKeys.add(dto.getHashKey());
         }
         
-        // Step 2: Query existing records
         Map<String, Unified_File__c> existingRecordsMap = new Map<String, Unified_File__c>();
         try {
             List<Unified_File__c> existingRecords = [
@@ -40,29 +38,25 @@ public with sharing class UnifiedFileUpsertService {
             System.debug(LoggingLevel.ERROR, 'Error querying existing records: ' + e.getMessage());
         }
         
-        // Step 3: Filter for changed records only
         List<FileDTO> changedDtos = DeltaChecker.filterChangedRecords(fileDtos, existingRecordsMap);
         
         if (changedDtos.isEmpty()) {
             System.debug('No changes detected, skipping upsert');
-            return new List<Database.SaveResult>();
+            return new List<Database.UpsertResult>();
         }
         
-        // Step 4: Get ownership policy
         OwnershipPolicy policy = OwnershipService.getCurrentPolicy();
         
-        // Step 5: Map DTOs to SObjects
         List<Unified_File__c> recordsToUpsert = new List<Unified_File__c>();
         for (FileDTO dto : changedDtos) {
             Unified_File__c record = mapToUnifiedSObject(dto, policy);
             recordsToUpsert.add(record);
         }
         
-        // Step 6: Perform upsert
-        List<Database.SaveResult> results = Database.upsert(
+        List<Database.UpsertResult> results = Database.upsert(
             recordsToUpsert, 
             Unified_File__c.HashKey__c,
-            false, // allOrNone = false
+            false,
             AccessLevel.USER_MODE
         );
         
@@ -78,7 +72,6 @@ public with sharing class UnifiedFileUpsertService {
     private static Unified_File__c mapToUnifiedSObject(FileDTO dto, OwnershipPolicy policy) {
         Unified_File__c record = new Unified_File__c();
         
-        // Core fields
         record.HashKey__c = dto.getHashKey();
         record.SourceType__c = dto.sourceType.name();
         record.SourceId__c = String.valueOf(dto.sourceId);
@@ -91,15 +84,12 @@ public with sharing class UnifiedFileUpsertService {
         record.LastModifiedDate__c = dto.lastModifiedDate;
         record.LastModifiedById__c = dto.lastModifiedById;
         
-        // Ownership
         record.OwnerId = OwnershipService.deriveOwnerId(dto, policy);
         
-        // Parent information
         record.ParentRecordId__c = String.valueOf(dto.parentRecordId);
         record.ParentRecordType__c = truncateString(dto.parentRecordType, 80);
         record.ParentRecordName__c = truncateString(dto.parentRecordName, 255);
         
-        // Optional fields
         record.Visibility__c = dto.visibility;
         record.BU__c = dto.businessUnit;
         record.IsArchived__c = dto.isArchived;
@@ -125,14 +115,14 @@ public with sharing class UnifiedFileUpsertService {
     
     /**
      * @description Analyzes upsert results and returns summary
-     * @param results List of save results
+     * @param results List of upsert results
      * @return Map<String, Integer> Summary with success/error counts
      */
-    public static Map<String, Integer> analyzeSaveResults(List<Database.SaveResult> results) {
+    public static Map<String, Integer> analyzeSaveResults(List<Database.UpsertResult> results) {
         Integer successCount = 0;
         Integer errorCount = 0;
         
-        for (Database.SaveResult result : results) {
+        for (Database.UpsertResult result : results) {
             if (result.isSuccess()) {
                 successCount++;
             } else {
