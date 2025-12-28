@@ -46,3 +46,7 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Adhoc Scripts and Anonymous Apex
+scripts/soql/
+scripts/apex/
