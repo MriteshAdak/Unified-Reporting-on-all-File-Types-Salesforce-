@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Unified_File__c$Name</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>Unified_File__c$ParentRecordId__c</column>
+            <columnToColumn>false</columnToColumn>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>null</value>
+        </criteriaItems>
+    </filter>
+    <format>Tabular</format>
+    <name>Orphaned Files</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>Unified_Files__c</reportType>
+    <scope>user</scope>
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+    <timeFrameFilter>
+        <dateColumn>Unified_File__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CURRENT</interval>
+    </timeFrameFilter>
+</Report>
