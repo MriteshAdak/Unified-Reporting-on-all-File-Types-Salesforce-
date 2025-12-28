@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Dependency-aware deployment to default scratch org using sf CLI
-# Prereqs:
-# - Salesforce CLI (sf) installed
-# - Default org set (either via sf config set target-org or alias provided via --target-org)
-#
-# Usage:
-#   bash scripts/deploy-scratch.sh            # deploy all stages and run tests
-#   TARGET_ORG=<aliasOrUsername> bash scripts/deploy-scratch.sh
-#
-# Notes:
-# - This script deploys in dependency-aware stages to improve failure isolation.
-# - For a one-shot deploy, consider: sf project deploy start --source-dir force-app
-# - For manifest-based: sf project deploy start --manifest manifest/package.xml
-
 TARGET_ORG="${TARGET_ORG:-}"
 
 run_sf() {
@@ -31,13 +17,17 @@ if [[ -n "${TARGET_ORG}" ]]; then
 fi
 run_sf org display --verbose || true
 
-echo "Stage 1: Deploy custom objects and custom metadata type structures"
+echo "Stage 1: Deploy custom objects, custom metadata type structures and report types"
 run_sf project deploy start --source-dir force-app/main/default/objects/Unified_File__c
 run_sf project deploy start --source-dir force-app/main/default/objects/Unified_Sync_Log__c
 run_sf project deploy start --source-dir force-app/main/default/objects/Unified_Sync_Config__mdt
+run_sf project deploy start --source-dir force-app/main/default/reportTypes/
 
-echo "Stage 2: Deploy tabs (depends on objects)"
+echo "Stage 2: Deploy tabs and Data (depends on objects)"
 run_sf project deploy start --source-dir force-app/main/default/tabs
+run_sf project deploy start --source-dir force-app/main/default/customMetadata/
+run_sf project deploy start --source-dir force-app/main/default/reports/
+run_sf project deploy start --source-dir force-app/main/default/dashboards/
 
 echo "Stage 3: Deploy foundational Apex (enums, DTOs, utils, services)"
 run_sf project deploy start --source-dir force-app/main/default/classes/SourceType.cls
