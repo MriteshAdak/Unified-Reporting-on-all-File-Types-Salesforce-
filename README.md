@@ -74,12 +74,15 @@ Click on the [Install Package](https://login.salesforce.com/packaging/installPac
    ```
 4. Deploy the package or Run the deployment script or Push source to your org:
    ```bash
+   # Deploying the Package
    sf package install --package "Unified File Reporting on Salesforce" --org <Org Alias> --wait 10
    ```
    ```bash
+   # Running Deployment Script
    bash scripts/deploy-scratch.sh
    ```
    ```bash
+   # Push Source to Org
    sf project deploy start --source-dir force-app
    ```
 
