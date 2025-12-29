@@ -152,8 +152,6 @@ Key test scenarios:
 - Query optimization with selective field retrieval
 - External ID indexing on `HashKey__c`
 
-## Troubleshooting
-
 ### Monitoring Sync Jobs
 
 Check `Unified_Sync_Log__c` records for:
@@ -167,17 +165,6 @@ Check `Unified_Sync_Log__c` records for:
 - **Governor Limits**: Monitor heap usage and query selectivity
 - **Missing Files**: Run full sync to reconcile deletions
 
-## Contributing
-
-1. Follow Salesforce development best practices
-2. Maintain test coverage above 85%
-3. Update documentation for any changes
-4. Use the provided ESLint and Prettier configurations
-
-## License
-
-This project is licensed under the MIT License.
-
 ## Support
 
-For issues or questions, please refer to the documentation or create an issue in this repository.
+For issues or questions, please refer to the documentation, engage in discussions or create an issue in this repository.
