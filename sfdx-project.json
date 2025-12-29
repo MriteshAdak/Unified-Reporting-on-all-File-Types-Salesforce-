@@ -1,12 +1,19 @@
 {
   "packageDirectories": [
     {
+      "versionName": "",
+      "versionNumber": "1.0.1.NEXT",
       "path": "force-app",
-      "default": true
+      "default": true,
+      "package": "Unified File Reporting on Salesforce",
+      "versionDescription": ""
     }
   ],
   "name": "reports on files salesforce",
   "namespace": "",
   "sfdcLoginUrl": "https://login.salesforce.com",
-  "sourceApiVersion": "65.0"
+  "sourceApiVersion": "65.0",
+  "packageAliases": {
+    "Unified File Reporting on Salesforce": "0HoWU0000001Bkb0AE"
+  }
 }

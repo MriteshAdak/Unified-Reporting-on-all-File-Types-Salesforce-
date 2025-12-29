@@ -50,3 +50,6 @@ $RECYCLE.BIN/
 # Adhoc Scripts and Anonymous Apex
 scripts/soql/
 scripts/apex/
+
+# Internal Documentation
+docs/

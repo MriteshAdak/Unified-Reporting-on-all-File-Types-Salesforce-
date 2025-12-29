@@ -1,18 +1,183 @@
-# Salesforce DX Project: Next Steps
+# Unified File Reporting on Salesforce
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+This Salesforce DX project is intended to provide unified reporting capability for all file types in Salesforce, starting with Content Documents (Files), Classic Attachments, and Content Notes for now. It enables users to run native Salesforce Reports and Dashboards across all file types using a denormalized, reportable custom object.
 
-## How Do You Plan to Deploy Your Changes?
+## Overview
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+The solution builds a unified view of files by synchronizing data from multiple Salesforce objects into a single `Unified_File__c` custom object. This allows for comprehensive and native reporting on file storage, ownership, and metadata without complex joins or custom development.
 
-## Configure Your Salesforce DX Project
+### Key Features
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+- **Unified Reporting**: Report on Files, Attachments, and Content Notes in a single view
+- **Automated Synchronization**: Hourly delta updates and nightly full reconciliations
+- **Configurable Ownership Policies**: Flexible rules for determining file ownership
+- **Parent Linkage**: Tracks primary parent records for each file
+- **Operational Monitoring**: Comprehensive logging and telemetry
+- **Native Salesforce Tools**: Uses standard Reports, Dashboards, and Custom Report Types
 
-## Read All About It
+### Supported File Types in Version 1
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+- **Content Documents** (Files): Including all versions and metadata
+- **Classic Attachments**: Legacy attachment objects
+- **Content Notes**: Salesforce Notes stored as Content Versions
+
+## Architecture
+
+### Data Model
+
+- **`Unified_File__c`**: Main reporting object containing denormalized file metadata
+- **`Unified_Sync_Log__c`**: Operational logs for sync processes
+- **`Unified_Sync_Config__mdt`**: Configuration settings via Custom Metadata Types
+
+### Processing Components
+
+- **Schedulers**: `NightlyFullScheduler` and `HourlyDeltaScheduler`
+- **Orchestrator**: Queueable class managing batch execution order
+- **Batch Classes**:
+  - `BatchExtractContentVersions`
+  - `BatchExtractContentDocumentLinks`
+  - `BatchExtractAttachments`
+- **Services**:
+  - `UnifiedFileUpsertService`
+  - `FileRecordMapper`
+  - `ParentSelectorService`
+  - `OwnershipService`
+  - `DeltaChecker`
+  - `IdempotencyUtil`
+  - `UnifiedSyncLogService`
+
+## Prerequisites
+
+- Access to a Salesforce org (Sandbox, Scratch Org, or Production)
+- Integration User with appropriate permissions:
+  - Read access on: ContentDocument, ContentVersion, ContentDocumentLink, ContentNote, Attachment
+  - Create/Update access on: Unified_File__c, Unified_Sync_Log__c
+  - Read/Create/Update on: Unified_Sync_Config__mdt
+  - Permission Set: File_Reports_Integration_ User has the necessary permissions
+
+## Installation
+
+### Deploy as Unlocked Package (For Administrators)
+
+Click on the [Install Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=0HoWU0000001Bkb0AE) link and log into the target Org.
+
+### Deploy as Unlocked Package (For Developers)
+
+1. Clone this repository
+2. Authenticate with your Salesforce org:
+   ```bash
+   sf org login web
+   ```
+3. Create a scratch org (optional):
+   ```bash
+   sf org create scratch --definition-file config/project-scratch-def.json --alias <Org Alias>
+   ```
+4. Deploy the package or Run the deployment script or Push source to your org:
+   ```bash
+   sf package install --package "Unified File Reporting on Salesforce" --org <Org Alias> --wait 10
+   ```
+   ```bash
+   bash scripts/deploy-scratch.sh
+   ```
+   ```bash
+   sf project deploy start --source-dir force-app
+   ```
+
+## Configuration
+
+### Custom Metadata Types
+
+Configure the solution via `Unified_Sync_Config__mdt` (Defaults should already exist):
+
+- `nightlyFullEnabled__c`: Enable/disable nightly full syncs
+- `hourlyDeltaEnabled__c`: Enable/disable hourly delta syncs
+- `hourlyDeltaLookbackMins__c`: Lookback window for delta processing
+- `batchSizeContentVersion__c`: Batch size for Content Version processing
+- `batchSizeAttachment__c`: Batch size for Attachment processing
+- `batchSizeCDL__c`: Batch size for Content Document Link processing
+- `maxUpsertPerTxn__c`: Maximum upserts per transaction
+- `retryLimit__c`: Retry limit for failed operations
+- `ownershipPolicy__c`: Ownership derivation policy (LATEST_VERSION_MODIFIER, PARENT_OWNER, ATTACHMENT_OWNER)
+
+### Scheduling Jobs
+
+1. Schedule the sync jobs in Setup > Scheduled Jobs:
+
+- **Nightly Full Sync**: Run `NightlyFullScheduler` daily (e.g., 2 AM)
+- **Hourly Delta Sync**: Run `HourlyDeltaScheduler` hourly
+
+## Usage
+
+### Running Reports
+
+1. Navigate to Reports in Salesforce
+2. Create a new report using the "Unified Files" Custom Report Type
+3. Add filters and groupings as needed
+
+### Sample Reports and Dashboard (comes with this package)
+
+- Files by Owner
+- Files by Parent Record Type
+- Largest Files by Size
+- Recently Modified Files
+- Orphaned Files (no parent)
+- Dashboard: Files Manager
+
+## Testing
+
+Run Apex tests:
+```bash
+sf apex run test --tests "BatchExtractContentVersionsTests,BatchExtractAttachmentsTests,..." --resultformat human --codecoverage
+```
+
+Key test scenarios:
+- Full sync end-to-end processing
+- Delta sync change detection
+- Parent selection logic
+- Ownership policy application
+- Error handling and logging
+- Idempotency verification
+
+## Security and Access Control
+
+- Apex classes use `with sharing`
+- Database operations use `AccessLevel.USER_MODE`
+- Field-level security enforced where applicable
+- Ability to set Report folder permissions control access to reports and dashboards
+
+## Performance and Scalability
+
+- Batch processing with configurable sizes
+- Delta processing for efficient incremental updates
+- Query optimization with selective field retrieval
+- External ID indexing on `HashKey__c`
+
+## Troubleshooting
+
+### Monitoring Sync Jobs
+
+Check `Unified_Sync_Log__c` records for:
+- Batch execution status
+- Record counts and error details
+- Processing timestamps
+
+### Common Issues
+
+- **Lock Contention**: Adjust batch sizes or scheduling
+- **Governor Limits**: Monitor heap usage and query selectivity
+- **Missing Files**: Run full sync to reconcile deletions
+
+## Contributing
+
+1. Follow Salesforce development best practices
+2. Maintain test coverage above 85%
+3. Update documentation for any changes
+4. Use the provided ESLint and Prettier configurations
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For issues or questions, please refer to the documentation or create an issue in this repository.
