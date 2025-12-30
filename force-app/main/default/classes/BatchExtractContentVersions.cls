@@ -49,24 +49,9 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
             
             Map<Id, ParentInfo> parentMap = ParentSelectorService.selectPrimaryParentsForDocuments(documentIds);
             
-            // Ensure lookup uses ContentDocumentId as the map key
-            // Assumes FileRecordMapper.fromContentVersions() sets dto.latestVersionId to ContentVersion.Id
-            // and dto.sourceId OR a dedicated dto.contentDocumentId references the ContentDocumentId.
             for (Integer i = 0; i < fileDtos.size(); i++) {
                 FileDTO dto = fileDtos[i];
-                Id contentDocumentId;
-                
-                // Prefer explicit ContentDocumentId if FileDTO exposes it; otherwise derive from the source list.
-                // We know contentVersions and fileDtos are aligned by mapper creation order.
-                if (dto != null) {
-                    // Attempt to read from a hypothetical dto.contentDocumentId if present via reflection-safe get
-                    try {
-                        contentDocumentId = (Id)dto.get('contentDocumentId');
-                    } catch (Exception ex) {
-                        // Fallback: use the ContentDocumentId from the original ContentVersion in this scope
-                        contentDocumentId = contentVersions[i].ContentDocumentId;
-                    }
-                }
+                Id contentDocumentId = contentVersions[i].ContentDocumentId;
                 
                 ParentInfo parentInfo = parentMap.get(contentDocumentId);
                 if (parentInfo != null && parentInfo.isValid()) {
