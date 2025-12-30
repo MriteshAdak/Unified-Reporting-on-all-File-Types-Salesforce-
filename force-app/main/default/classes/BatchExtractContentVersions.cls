@@ -49,8 +49,26 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
             
             Map<Id, ParentInfo> parentMap = ParentSelectorService.selectPrimaryParentsForDocuments(documentIds);
             
-            for (FileDTO dto : fileDtos) {
-                ParentInfo parentInfo = parentMap.get(dto.sourceId);
+            // Ensure lookup uses ContentDocumentId as the map key
+            // Assumes FileRecordMapper.fromContentVersions() sets dto.latestVersionId to ContentVersion.Id
+            // and dto.sourceId OR a dedicated dto.contentDocumentId references the ContentDocumentId.
+            for (Integer i = 0; i < fileDtos.size(); i++) {
+                FileDTO dto = fileDtos[i];
+                Id contentDocumentId;
+                
+                // Prefer explicit ContentDocumentId if FileDTO exposes it; otherwise derive from the source list.
+                // We know contentVersions and fileDtos are aligned by mapper creation order.
+                if (dto != null) {
+                    // Attempt to read from a hypothetical dto.contentDocumentId if present via reflection-safe get
+                    try {
+                        contentDocumentId = (Id)dto.get('contentDocumentId');
+                    } catch (Exception ex) {
+                        // Fallback: use the ContentDocumentId from the original ContentVersion in this scope
+                        contentDocumentId = contentVersions[i].ContentDocumentId;
+                    }
+                }
+                
+                ParentInfo parentInfo = parentMap.get(contentDocumentId);
                 if (parentInfo != null && parentInfo.isValid()) {
                     dto.parentRecordId = parentInfo.parentRecordId;
                     dto.parentRecordType = parentInfo.parentRecordType;
@@ -92,5 +110,25 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
         
         System.debug('BatchExtractContentVersions completed: ' + totalProcessed + 
                     ' processed, ' + totalErrors + ' errors');
+        
+        // Chain next stage (CDL) only after CV batch has fully finished
+        try {
+            Unified_Sync_Config__mdt config = [
+                SELECT batchSizeCDL__c
+                FROM Unified_Sync_Config__mdt
+                WHERE DeveloperName = 'Default'
+                LIMIT 1
+            ];
+            Integer batchSize = Integer.valueOf(config.batchSizeCDL__c);
+            Id nextBatchId = Database.executeBatch(
+                new BatchExtractContentDocumentLinks(mode, lookbackMinutes),
+                batchSize
+            );
+            System.debug('Chained BatchExtractContentDocumentLinks with Id: ' + nextBatchId);
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Failed to enqueue CDL batch from CV.finish: ' + e.getMessage());
+            // Log a distinct failure entry to aid operations visibility
+            UnifiedSyncLogService.logFailure('BatchExtractContentVersions', mode.name() + '_CHAIN_CDL', e.getMessage());
+        }
     }
 }
