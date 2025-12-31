@@ -15,6 +15,12 @@ public class SyncOrchestrator implements Queueable {
     
     public void execute(QueueableContext context) {
         try {
+            // Check for concurrent run
+            if (isAnotherRunActive(mode)) {
+                System.debug('Another ' + mode.name() + ' run is already active, skipping this execution.');
+                return;
+            }
+            
             Unified_Sync_Config__mdt config = getConfig();
             
             // Start Flow A: ContentVersions (CV). CV.finish() will enqueue CDL.
@@ -82,5 +88,27 @@ public class SyncOrchestrator implements Queueable {
     
     public static void initiate(SyncMode mode, Integer lookbackMinutes) {
         System.enqueueJob(new SyncOrchestrator(mode, lookbackMinutes));
+    }
+    
+    /**
+     * @description Checks if another sync run of the same mode is already active
+     * @param mode The sync mode to check
+     * @return Boolean True if another run is active, false otherwise
+     */
+    private static Boolean isAnotherRunActive(SyncMode mode) {
+        try {
+            // Query for any currently running sync logs for the same mode
+            List<Unified_Sync_Log__c> activeLogs = [
+                SELECT Id FROM Unified_Sync_Log__c 
+                WHERE Status__c = 'RUNNING' AND Stage__c = :mode.name() + '_LAUNCHED_PARALLEL'
+                LIMIT 1
+            ];
+            
+            return !activeLogs.isEmpty();
+        } catch (Exception e) {
+            System.debug(LoggingLevel.WARN, 'Error checking for active runs: ' + e.getMessage());
+            // When in doubt, prevent the run to avoid conflicts
+            return true;
+        }
     }
 }
