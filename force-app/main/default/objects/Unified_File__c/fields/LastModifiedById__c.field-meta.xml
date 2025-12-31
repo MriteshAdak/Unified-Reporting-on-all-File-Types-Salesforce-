@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>LastModifiedById__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <label>Last Modified By</label>
+    <label>File Last Modified By</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Unified_Files1</relationshipName>
     <required>false</required>

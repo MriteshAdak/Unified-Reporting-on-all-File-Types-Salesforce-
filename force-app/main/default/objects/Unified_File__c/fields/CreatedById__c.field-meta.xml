@@ -2,7 +2,7 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>CreatedById__c</fullName>
     <deleteConstraint>SetNull</deleteConstraint>
-    <label>Created By</label>
+    <label>File Created By</label>
     <referenceTo>User</referenceTo>
     <relationshipName>Unified_Files</relationshipName>
     <required>false</required>
