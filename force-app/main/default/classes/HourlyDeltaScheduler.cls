@@ -1,10 +1,15 @@
 /**
- * @description Scheduler for hourly delta synchronization
+ * @description Scheduler for hourly delta synchronization of files
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public class HourlyDeltaScheduler implements Schedulable {
     
+    /**
+     * @description Executes the scheduled job for hourly delta synchronization
+     * @param sc The schedulable context
+     */
     public void execute(SchedulableContext sc) {
         System.debug('HourlyDeltaScheduler triggered at: ' + Datetime.now());
         
@@ -33,6 +38,10 @@ public class HourlyDeltaScheduler implements Schedulable {
         }
     }
     
+    /**
+     * @description Gets the synchronization configuration
+     * @return Unified_Sync_Config__mdt The configuration object
+     */
     private Unified_Sync_Config__mdt getConfig() {
         try {
             return Unified_Sync_Config__mdt.getInstance('Default');
@@ -42,6 +51,10 @@ public class HourlyDeltaScheduler implements Schedulable {
         }
     }
     
+    /**
+     * @description Gets the default synchronization configuration
+     * @return Unified_Sync_Config__mdt The default configuration object
+     */
     private Unified_Sync_Config__mdt getDefaultConfig() {
         Unified_Sync_Config__mdt config = new Unified_Sync_Config__mdt();
         config.hourlyDeltaEnabled__c = true;
@@ -49,6 +62,11 @@ public class HourlyDeltaScheduler implements Schedulable {
         return config;
     }
     
+    /**
+     * @description Schedules the hourly delta sync job
+     * @param jobName The name of the scheduled job
+     * @return String The job ID
+     */
     public static String scheduleHourly(String jobName) {
         String cronExpression = '0 0 * * * ?';
         

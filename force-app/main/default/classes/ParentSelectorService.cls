@@ -1,8 +1,9 @@
 /**
- * @description Service to select primary parent from ContentDocumentLinks
+ * @description Service to select primary parent records from ContentDocumentLinks for file synchronization
  * Rule: Filter out User parents, choose first non-User link
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class ParentSelectorService {
     

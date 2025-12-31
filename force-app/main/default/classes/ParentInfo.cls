@@ -1,7 +1,8 @@
 /**
- * @description Wrapper class for parent record information
+ * @description Wrapper class for parent record information in file synchronization
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public class ParentInfo {
     public Id parentRecordId { get; set; }
@@ -9,7 +10,7 @@ public class ParentInfo {
     public String parentRecordName { get; set; }
     
     /**
-     * @description Constructor with parameters
+     * @description Constructor with parameters for ParentInfo
      * @param parentId The ID of the parent record
      * @param parentType The sObject type of the parent
      * @param parentName The name of the parent record
@@ -21,7 +22,7 @@ public class ParentInfo {
     }
     
     /**
-     * @description Checks if parent info is valid
+     * @description Checks if parent info is valid (has a parent record ID)
      * @return Boolean True if parent ID is not null
      */
     public Boolean isValid() {

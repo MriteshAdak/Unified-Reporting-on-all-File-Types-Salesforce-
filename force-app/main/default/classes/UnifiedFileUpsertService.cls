@@ -1,7 +1,8 @@
 /**
- * @description Service for upserting Unified_File__c records with idempotency
+ * @description Service for upserting Unified_File__c records with idempotency and delta checking
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class UnifiedFileUpsertService {
     

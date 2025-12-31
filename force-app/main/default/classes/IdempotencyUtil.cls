@@ -1,12 +1,13 @@
 /**
- * @description Utility class for generating idempotent hash keys
+ * @description Utility class for generating idempotent hash keys for file synchronization
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class IdempotencyUtil {
     
     /**
-     * @description Generates a unique hash key for a file record
+     * @description Generates a unique hash key for a file record using SHA-256
      * @param sourceType The source type of the file
      * @param sourceId The source ID of the file
      * @return String A unique hash key

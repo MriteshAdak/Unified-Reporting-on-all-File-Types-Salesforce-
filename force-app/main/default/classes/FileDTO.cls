@@ -2,6 +2,7 @@
  * @description Data Transfer Object for file information across the sync pipeline
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public class FileDTO {
     public SourceType sourceType { get; set; }
@@ -24,7 +25,7 @@ public class FileDTO {
     public Boolean isContentNote { get; set; }
     
     /**
-     * @description Default constructor
+     * @description Default constructor for FileDTO
      */
     public FileDTO() {
         this.isArchived = false;

@@ -1,7 +1,8 @@
 /**
- * @description Service class to detect changes between FileDTO and existing Unified_File__c records
+ * @description Service class to detect changes between FileDTO and existing Unified_File__c records for delta checking
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class DeltaChecker {
     

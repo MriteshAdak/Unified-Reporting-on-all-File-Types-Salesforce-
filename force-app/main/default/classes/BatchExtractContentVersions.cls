@@ -1,7 +1,8 @@
 /**
- * @description Batch job to extract and process ContentVersions
+ * @description Batch job to extract and process ContentVersions for unified file synchronization
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class BatchExtractContentVersions implements Database.Batchable<SObject>, Database.Stateful {
     
@@ -12,11 +13,21 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
     private String sampleError;
     private Unified_Sync_Log__c logRecord;
     
+    /**
+     * @description Constructor for BatchExtractContentVersions
+     * @param mode The synchronization mode (FULL or DELTA)
+     * @param lookbackMinutes The lookback window in minutes for delta sync
+     */
     public BatchExtractContentVersions(SyncMode mode, Integer lookbackMinutes) {
         this.mode = mode;
         this.lookbackMinutes = lookbackMinutes;
     }
     
+    /**
+     * @description Starts the batch job by preparing the query
+     * @param bc The batchable context
+     * @return Database.QueryLocator The query locator for ContentVersion records
+     */
     public Database.QueryLocator start(Database.BatchableContext bc) {
         this.logRecord = UnifiedSyncLogService.startLog(
             'BatchExtractContentVersions',
@@ -38,6 +49,11 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
         return Database.getQueryLocator(query);
     }
     
+    /**
+     * @description Processes a batch of ContentVersion records
+     * @param bc The batchable context
+     * @param contentVersions The list of ContentVersion records to process
+     */
     public void execute(Database.BatchableContext bc, List<ContentVersion> contentVersions) {
         try {
             List<FileDTO> fileDtos = FileRecordMapper.fromContentVersions(contentVersions);
@@ -85,6 +101,10 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
         }
     }
     
+    /**
+     * @description Completes the batch job and chains the next stage
+     * @param bc The batchable context
+     */
     public void finish(Database.BatchableContext bc) {
         UnifiedSyncLogService.completeLog(
             logRecord,

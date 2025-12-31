@@ -1,7 +1,8 @@
 /**
- * @description Service class to map source records to FileDTO
+ * @description Service class to map source records (ContentVersion, Attachment) to FileDTO for unified file synchronization
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class FileRecordMapper {
     

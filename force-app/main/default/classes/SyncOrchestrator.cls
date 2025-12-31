@@ -1,18 +1,28 @@
 /**
- * @description Queueable orchestrator to chain batch jobs sequentially
+ * @description Queueable orchestrator to chain batch jobs sequentially for file synchronization
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public class SyncOrchestrator implements Queueable {
     
     private SyncMode mode;
     private Integer lookbackMinutes;
     
+    /**
+     * @description Constructor for SyncOrchestrator
+     * @param mode The synchronization mode (FULL or DELTA)
+     * @param lookbackMinutes The lookback window in minutes for delta sync
+     */
     public SyncOrchestrator(SyncMode mode, Integer lookbackMinutes) {
         this.mode = mode;
         this.lookbackMinutes = lookbackMinutes;
     }
     
+    /**
+     * @description Executes the queueable job to orchestrate batch processing
+     * @param context The queueable context
+     */
     public void execute(QueueableContext context) {
         try {
             // Check for concurrent run
@@ -44,6 +54,10 @@ public class SyncOrchestrator implements Queueable {
         }
     }
     
+    /**
+     * @description Starts the ContentVersions batch job
+     * @param config The synchronization configuration
+     */
     private void startContentVersions(Unified_Sync_Config__mdt config) {
         Integer batchSize = Integer.valueOf(config.batchSizeContentVersion__c);
         Id batchId = Database.executeBatch(
@@ -53,6 +67,10 @@ public class SyncOrchestrator implements Queueable {
         System.debug('Started BatchExtractContentVersions with Id: ' + batchId);
     }
     
+    /**
+     * @description Starts the Attachments batch job
+     * @param config The synchronization configuration
+     */
     private void startAttachments(Unified_Sync_Config__mdt config) {
         Integer batchSize = Integer.valueOf(config.batchSizeAttachment__c);
         Id batchId = Database.executeBatch(
@@ -62,6 +80,10 @@ public class SyncOrchestrator implements Queueable {
         System.debug('Started BatchExtractAttachments with Id: ' + batchId);
     }
     
+    /**
+     * @description Gets the synchronization configuration
+     * @return Unified_Sync_Config__mdt The configuration object
+     */
     private Unified_Sync_Config__mdt getConfig() {
         try {
             return Unified_Sync_Config__mdt.getInstance('Default');
@@ -71,6 +93,10 @@ public class SyncOrchestrator implements Queueable {
         }
     }
     
+    /**
+     * @description Gets the default synchronization configuration
+     * @return Unified_Sync_Config__mdt The default configuration object
+     */
     private Unified_Sync_Config__mdt getDefaultConfig() {
         Unified_Sync_Config__mdt config = new Unified_Sync_Config__mdt();
         config.batchSizeContentVersion__c = 200;
@@ -80,6 +106,11 @@ public class SyncOrchestrator implements Queueable {
         return config;
     }
     
+    /**
+     * @description Initiates a synchronization process
+     * @param mode The synchronization mode (FULL or DELTA)
+     * @param lookbackMinutes The lookback window in minutes for delta sync
+     */
     public static void initiate(SyncMode mode, Integer lookbackMinutes) {
         System.enqueueJob(new SyncOrchestrator(mode, lookbackMinutes));
     }

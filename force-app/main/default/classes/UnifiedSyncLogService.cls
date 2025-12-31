@@ -1,12 +1,13 @@
 /**
- * @description Service for logging synchronization operations
+ * @description Service for logging synchronization operations for monitoring and debugging
  * @author Mritesh Adak
  * @date 2025
+ * @since 1.0
  */
 public with sharing class UnifiedSyncLogService {
     
     /**
-     * @description Logs a sync operation
+     * @description Logs a sync operation with detailed information
      * @param batchName Name of the batch job
      * @param stage Stage of the sync process
      * @param recordCount Number of records processed
@@ -117,7 +118,7 @@ public with sharing class UnifiedSyncLogService {
     }
     
     /**
-     * @description Logs a failure
+     * @description Logs a failure with error details
      * @param batchName Name of batch
      * @param stage Stage name
      * @param errorMessage Error message
