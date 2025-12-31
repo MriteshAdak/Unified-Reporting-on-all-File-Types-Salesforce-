@@ -98,12 +98,7 @@ public with sharing class BatchExtractContentVersions implements Database.Batcha
         
         // Chain next stage (CDL) only after CV batch has fully finished
         try {
-            Unified_Sync_Config__mdt config = [
-                SELECT batchSizeCDL__c
-                FROM Unified_Sync_Config__mdt
-                WHERE DeveloperName = 'Default'
-                LIMIT 1
-            ];
+            Unified_Sync_Config__mdt config = Unified_Sync_Config__mdt.getInstance('Default');
             Integer batchSize = Integer.valueOf(config.batchSizeCDL__c);
             Id nextBatchId = Database.executeBatch(
                 new BatchExtractContentDocumentLinks(mode, lookbackMinutes),

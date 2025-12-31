@@ -32,12 +32,7 @@ public class NightlyFullScheduler implements Schedulable {
     
     private Unified_Sync_Config__mdt getConfig() {
         try {
-            return [
-                SELECT nightlyFullEnabled__c
-                FROM Unified_Sync_Config__mdt
-                WHERE DeveloperName = 'Default'
-                LIMIT 1
-            ];
+            return Unified_Sync_Config__mdt.getInstance('Default');
         } catch (Exception e) {
             System.debug(LoggingLevel.WARN, 'Could not load CMDT config, using defaults');
             return getDefaultConfig();

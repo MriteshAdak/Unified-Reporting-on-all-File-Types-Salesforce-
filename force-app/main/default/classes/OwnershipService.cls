@@ -86,12 +86,7 @@ public with sharing class OwnershipService {
      */
     public static OwnershipPolicy getCurrentPolicy() {
         try {
-            Unified_Sync_Config__mdt config = [
-                SELECT ownershipPolicy__c 
-                FROM Unified_Sync_Config__mdt 
-                WHERE DeveloperName = 'Default' 
-                LIMIT 1
-            ];
+            Unified_Sync_Config__mdt config = Unified_Sync_Config__mdt.getInstance('Default');
             
             String policyValue = config.ownershipPolicy__c;
             
