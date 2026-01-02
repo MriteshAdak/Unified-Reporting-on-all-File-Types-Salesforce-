@@ -24,6 +24,11 @@
                 <default>false</default>
                 <label>FAILED</label>
             </value>
+            <value>
+                <fullName>RUNNING</fullName>
+                <default>false</default>
+                <label>RUNNING</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>
