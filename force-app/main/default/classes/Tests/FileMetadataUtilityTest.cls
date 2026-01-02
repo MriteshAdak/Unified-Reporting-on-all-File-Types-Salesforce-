@@ -1,3 +1,10 @@
+/**
+ * Test class for FileMetadataUtility components.
+ * Validates utility methods for idempotency hash generation and parent information validation.
+ *
+ * @author Mritesh Adak
+ * @since 1.0
+ */
 @isTest
 private class FileMetadataUtilityTest {
     @isTest

@@ -1,3 +1,10 @@
+/**
+ * Test class for FileSyncCoreLogic components.
+ * Validates the core file synchronization logic including DTO mapping and delta change detection.
+ *
+ * @author Mritesh Adak
+ * @since 1.0
+ */
 @isTest
 private class FileSyncCoreLogicTest {
     @testSetup

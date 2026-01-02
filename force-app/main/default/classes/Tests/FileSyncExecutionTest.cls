@@ -1,3 +1,10 @@
+/**
+ * Test class for FileSyncExecution components.
+ * Validates the execution orchestration logic including batch job scheduling and mode handling.
+ *
+ * @author Mritesh Adak
+ * @since 1.0
+ */
 @isTest
 private class FileSyncExecutionTest {
     @testSetup

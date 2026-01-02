@@ -1,3 +1,10 @@
+/**
+ * Test class for FileSyncService components.
+ * Validates service layer functionality including unified file upsert and sync logging.
+ *
+ * @author Mritesh Adak
+ * @since 1.0
+ */
 @isTest
 private class FileSyncServiceTest {
     @isTest

@@ -1,3 +1,11 @@
+/**
+ * Test class for BatchReconcileDeleted batch job.
+ * Validates the reconciliation logic for deleted file sources.
+ * Tests scenarios including deletion of ContentDocuments and handling of invalid source IDs.
+ *
+ * @author Mritesh Adak
+ * @since 1.0
+ */
 @isTest
 private class BatchReconcileDeletedTest {
     @testSetup
