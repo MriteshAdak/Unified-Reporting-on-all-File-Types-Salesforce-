@@ -64,7 +64,7 @@ Click on the [Install Package](https://login.salesforce.com/packaging/installPac
 ### Deploy as Unlocked Package (For Developers)
 
 1. Clone this repository
-2. Authenticate with your Salesforce org:
+2. Run the following command and authenticate with your Salesforce org:
    ```bash
    sf org login web
    ```
@@ -112,30 +112,6 @@ Configure the solution via `Unified_Sync_Config__mdt` (Defaults should already e
 1. Navigate to Reports in Salesforce
 2. Create a new report using the "Unified Files" Custom Report Type
 3. Add filters and groupings as needed
-
-### Sample Reports and Dashboard (comes with this package)
-
-- Files by Owner
-- Files by Parent Record Type
-- Largest Files by Size
-- Recently Modified Files
-- Orphaned Files (no parent)
-- Dashboard: Files Manager
-
-## Testing
-
-Run Apex tests:
-```bash
-sf apex run test --tests "BatchExtractContentVersionsTests,BatchExtractAttachmentsTests,..." --resultformat human --codecoverage
-```
-
-Key test scenarios:
-- Full sync end-to-end processing
-- Delta sync change detection
-- Parent selection logic
-- Ownership policy application
-- Error handling and logging
-- Idempotency verification
 
 ## Security and Access Control
 
