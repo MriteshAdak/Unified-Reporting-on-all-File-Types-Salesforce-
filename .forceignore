@@ -10,3 +10,7 @@ package.xml
 
 # LWC Jest
 **/__tests__/**
+
+#Sample Reports and Dashboards
+force-app/main/default/reports
+force-app/main/default/dashboards
