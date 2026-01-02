@@ -47,9 +47,8 @@ $RECYCLE.BIN/
 **/.venv/
 **/venv/
 
-# Adhoc Scripts and Anonymous Apex
-scripts/soql/
-scripts/apex/
+# Internal Scripts
+scripts/
 
 # Internal Documentation
 docs/
