@@ -2,7 +2,7 @@
   "packageDirectories": [
     {
       "versionName": "",
-      "versionNumber": "1.1.0.NEXT",
+      "versionNumber": "1.2.0.NEXT",
       "path": "force-app",
       "default": true,
       "package": "Unified File Reporting on Salesforce",
@@ -15,6 +15,7 @@
   "sourceApiVersion": "65.0",
   "packageAliases": {
     "Unified File Reporting on Salesforce": "0HoWU0000001Bkb0AE",
-    "Unified File Reporting on Salesforce@1.1.0-1": "04tWU000000JTr7YAG"
+    "Unified File Reporting on Salesforce@1.1.0-1": "04tWU000000JTr7YAG",
+    "Unified File Reporting on Salesforce@1.2.0-1": "04tWU000000JaKjYAK"
   }
 }

@@ -59,7 +59,7 @@ The solution builds a unified view of files by synchronizing data from multiple 
 
 ### Deploy as Unlocked Package (For Administrators)
 
-Click on the [Install Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=0HoWU0000001Bkb0AE) link and log into the target Org.
+Click on the [Install Package](https://login.salesforce.com/packaging/installPackage.apexp?p0=04tWU000000JaKjYAK) link and log into the target Org.
 
 ### Deploy as Unlocked Package (For Developers)
 
