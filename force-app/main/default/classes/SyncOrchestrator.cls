@@ -39,6 +39,11 @@ public class SyncOrchestrator implements Queueable {
             // Start Flow B: Attachments in parallel.
             startAttachments(config);
             
+            if (mode == SyncMode.FULL) {
+                // For FULL sync, start reconciliation after CV and Attachment batches.
+                executeBatchStage4(config);
+            }
+
             UnifiedSyncLogService.logSuccess(
                 'SyncOrchestrator',
                 mode.name() + '_LAUNCHED_PARALLEL',
@@ -78,6 +83,19 @@ public class SyncOrchestrator implements Queueable {
             batchSize
         );
         System.debug('Started BatchExtractAttachments with Id: ' + batchId);
+    }
+    
+    /**
+     * @description Executes the reconciliation batch job to mark deleted files
+     * @param config The synchronization configuration
+     */
+    private void executeBatchStage4(Unified_Sync_Config__mdt config) {
+        
+        Integer batchSize = 200;
+        BatchReconcileDeleted batch = new BatchReconcileDeleted();
+        
+        Id batchId = Database.executeBatch(batch, batchSize);
+        System.debug('Started BatchReconcileDeleted with Id: ' + batchId);    
     }
     
     /**
