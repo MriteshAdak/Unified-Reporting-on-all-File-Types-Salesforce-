@@ -1,5 +1,7 @@
 # Unified File Reporting on Salesforce
 
+* Repo forzen for now till project evaluation is complete
+
 This Salesforce DX project is intended to provide unified reporting capability for all file types in Salesforce, starting with Content Documents (Files), Classic Attachments, and Content Notes for now. It enables users to run native Salesforce Reports and Dashboards across all file types using a denormalized, reportable custom object.
 
 ## Overview
