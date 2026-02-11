@@ -38,6 +38,10 @@ public class FileDTO {
      * @return String Hash key combining source type and ID
      */
     public String getHashKey() {
-        return IdempotencyUtil.makeHashKey(this.sourceType.name(), this.sourceId);
+        if(this.sourceType.name() != null) {
+            return IdempotencyUtil.makeHashKey(this.sourceType.name(), this.sourceId);
+        } else {
+            throw new Exception('Cannot generate Hash Key: sourceType null');
+        }
     }
 }
