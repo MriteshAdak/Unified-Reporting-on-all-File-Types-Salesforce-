@@ -7,8 +7,8 @@ This Salesforce project intends to provide unified reporting capability for all 
 
 The solution builds a unified view of files by synchronizing data from multiple Salesforce objects into a single `Unified_File__c` custom object. This allows for comprehensive and native reporting on file storage, ownership, and metadata without complex joins or custom development.
 
-NOTE: There are many parts in the application that needs refactoring. However, since the primary method is prefered for this use case so this is being archived with no futher improvements.
-Handling the object structure of files (Content Document parent and ownershop logic plus security/access) along with syncing to the unified object is not an optimal solution when compared to the primary approach.
+NOTE: _There are many parts in the application that needs refactoring. However, since the primary method is prefered for this use case so this is being archived with no futher improvements.
+Handling the object structure of files (Content Document parent and ownershop logic plus security/access) along with syncing to the unified object is not an optimal solution when compared to the primary approach._
 
 ### Key Features
 
